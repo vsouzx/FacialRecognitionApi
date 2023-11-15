@@ -75,7 +75,6 @@ public class FaceAuthenticationService {
                 .withCollectionId(COLLECTION_ID)
                 .withExternalImageId(photo.getOriginalFilename())
                 .withDetectionAttributes("ALL"));
-
     }
 
     public FaceAuthenticationResponse getAuthenticationByFace(MultipartFile photo) throws Exception {
@@ -98,6 +97,8 @@ public class FaceAuthenticationService {
                                 .withName(photo.getOriginalFilename() + "temp")))
                 .withFaceMatchThreshold(SIMILARITY_PERCENTAGE));
 
+        s3client.deleteObject(new DeleteObjectRequest(BUCKET_NAME, photo.getOriginalFilename() + "temp"));
+
         if (result.getFaceMatches().isEmpty()) {
             throw new NotRegisteredFaceException();
         }
@@ -105,8 +106,6 @@ public class FaceAuthenticationService {
         FaceMatch matchedFace = result.getFaceMatches().stream()
                 .max(Comparator.comparing(f -> f.getFace().getConfidence()))
                 .orElseThrow(Exception::new);
-
-        s3client.deleteObject(new DeleteObjectRequest(BUCKET_NAME, photo.getOriginalFilename() + "temp"));
 
         return FaceAuthenticationResponse.builder()
                 .userName(matchedFace.getFace().getExternalImageId())
