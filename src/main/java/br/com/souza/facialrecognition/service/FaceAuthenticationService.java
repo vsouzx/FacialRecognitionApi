@@ -8,6 +8,7 @@ import com.amazonaws.services.rekognition.model.Attribute;
 import com.amazonaws.services.rekognition.model.CreateCollectionRequest;
 import com.amazonaws.services.rekognition.model.DetectFacesRequest;
 import com.amazonaws.services.rekognition.model.DetectFacesResult;
+import com.amazonaws.services.rekognition.model.FaceMatch;
 import com.amazonaws.services.rekognition.model.Image;
 import com.amazonaws.services.rekognition.model.IndexFacesRequest;
 import com.amazonaws.services.rekognition.model.ResourceAlreadyExistsException;
@@ -16,10 +17,10 @@ import com.amazonaws.services.rekognition.model.SearchFacesByImageResult;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectRequest;
-import java.awt.SystemTray;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.math.BigDecimal;
 import java.nio.ByteBuffer;
 import java.util.Comparator;
 import java.util.Objects;
@@ -101,15 +102,15 @@ public class FaceAuthenticationService {
             throw new NotRegisteredFaceException();
         }
 
-        String imagemNome = result.getFaceMatches().stream()
+        FaceMatch matchedFace = result.getFaceMatches().stream()
                 .max(Comparator.comparing(f -> f.getFace().getConfidence()))
-                .map(f -> f.getFace().getExternalImageId())
                 .orElseThrow(Exception::new);
 
         s3client.deleteObject(new DeleteObjectRequest(BUCKET_NAME, photo.getOriginalFilename() + "temp"));
 
         return FaceAuthenticationResponse.builder()
-                .userName(imagemNome)
+                .userName(matchedFace.getFace().getExternalImageId())
+                .similarityPercentage(BigDecimal.valueOf(matchedFace.getFace().getConfidence()))
                 .build();
     }
 
