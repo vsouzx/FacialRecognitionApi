@@ -11,3 +11,5 @@ Autenticação através de reconhecimento facial, usando Java, Spring e os SDKs 
 3. Feito isso a aplicação já esta pronta para ser executada.
    
 5. Rodando localmente, você pode acessar a documentação da API para usar os endpoints: http://localhost:8080/swagger-ui.html
+   
+<img src="https://github.com/vsouzx/FacialRecognitionApi/assets/88911545/751b3544-5227-4d55-83ba-0a0896c65050"></img>
