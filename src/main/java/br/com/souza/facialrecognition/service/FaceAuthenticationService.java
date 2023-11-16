@@ -1,6 +1,7 @@
 package br.com.souza.facialrecognition.service;
 
 import br.com.souza.facialrecognition.dto.FaceAuthenticationResponse;
+import br.com.souza.facialrecognition.handler.MultipleFacesException;
 import br.com.souza.facialrecognition.handler.NotHumanFaceException;
 import br.com.souza.facialrecognition.handler.NotRegisteredFaceException;
 import com.amazonaws.services.rekognition.AmazonRekognition;
@@ -18,6 +19,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
@@ -49,13 +51,7 @@ public class FaceAuthenticationService {
             throw new NotHumanFaceException();
         }
 
-        File file = new File(Objects.requireNonNull(photo.getOriginalFilename()));
-        try (OutputStream os = new FileOutputStream(file)) {
-            os.write(photo.getBytes());
-        }
-
-        s3client.putObject(new PutObjectRequest(BUCKET_NAME, photo.getOriginalFilename(), file));
-        file.delete();
+        uploadToBucket(photo, false);
 
         try {
             rekognitionClient.createCollection(new CreateCollectionRequest()
@@ -82,12 +78,7 @@ public class FaceAuthenticationService {
             throw new NotHumanFaceException();
         }
 
-        File file = new File(Objects.requireNonNull(photo.getOriginalFilename()));
-        try (OutputStream os = new FileOutputStream(file)) {
-            os.write(photo.getBytes());
-        }
-        s3client.putObject(new PutObjectRequest(BUCKET_NAME, photo.getOriginalFilename() + "temp", file));
-        file.delete();
+        uploadToBucket(photo, true);
 
         SearchFacesByImageResult result = rekognitionClient.searchFacesByImage(new SearchFacesByImageRequest()
                 .withCollectionId(COLLECTION_ID)
@@ -113,7 +104,7 @@ public class FaceAuthenticationService {
                 .build();
     }
 
-    private Boolean isFace(byte[] photo) {
+    private Boolean isFace(byte[] photo) throws Exception {
         DetectFacesRequest request = new DetectFacesRequest()
                 .withImage(new Image().withBytes(ByteBuffer.wrap(photo)))
                 .withAttributes(Attribute.ALL);
@@ -122,6 +113,23 @@ public class FaceAuthenticationService {
         if (result.getFaceDetails().isEmpty()) {
             return false;
         }
+
+        if(result.getFaceDetails().size() > 1){
+            throw new MultipleFacesException();
+        }
+
         return result.getFaceDetails().get(0).getConfidence() > 90;
+    }
+
+    private void uploadToBucket(MultipartFile photo, boolean isTemp) throws Exception {
+        String fileName = isTemp ? photo.getOriginalFilename() + "temp" : photo.getOriginalFilename();
+
+        File file = new File(Objects.requireNonNull(fileName));
+        try (OutputStream os = new FileOutputStream(file)) {
+            os.write(photo.getBytes());
+        }
+
+        s3client.putObject(new PutObjectRequest(BUCKET_NAME, fileName, file));
+        file.delete();
     }
 }

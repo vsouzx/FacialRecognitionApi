@@ -3,7 +3,8 @@ package br.com.souza.facialrecognition.enums;
 public enum InternalTypeErrorCodesEnum {
 
     E400001("Rosto não humano. Envie outra foto."),
-    E400002("Rosto não cadastrado, tente novamente.");
+    E400002("Rosto não cadastrado, tente novamente."),
+    E400003("Múltiplos rostos na foto. Selecione uma foto onde tenha apenas 1 rosto.");
 
     private final String message;
 
