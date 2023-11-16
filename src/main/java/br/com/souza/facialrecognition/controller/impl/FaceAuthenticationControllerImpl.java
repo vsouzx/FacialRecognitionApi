@@ -22,12 +22,12 @@ public class FaceAuthenticationControllerImpl implements IFaceAuthenticationCont
         this.faceAuthenticationService = faceAuthenticationService;
     }
 
-    @PostMapping(value = "/byface", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/byface", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<FaceAuthenticationResponse> getAuthenticationByFace(@RequestPart(value = "photo") MultipartFile photo) throws Exception {
         return new ResponseEntity<>(faceAuthenticationService.getAuthenticationByFace(photo), HttpStatus.OK);
     }
 
-    @PostMapping(value = "/saveNewPhoto", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/saveNewPhoto", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> saveNewPhoto(@RequestPart(value = "photo") MultipartFile photo) throws Exception {
         faceAuthenticationService.saveNewPhoto(photo);
         return new ResponseEntity<>(HttpStatus.CREATED);
