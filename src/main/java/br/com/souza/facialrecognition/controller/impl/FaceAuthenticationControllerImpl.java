@@ -27,7 +27,7 @@ public class FaceAuthenticationControllerImpl implements IFaceAuthenticationCont
         return new ResponseEntity<>(faceAuthenticationService.getAuthenticationByFace(photo), HttpStatus.OK);
     }
 
-    @PostMapping(value = "/saveNewPhoto", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/savenewphoto", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> saveNewPhoto(@RequestPart(value = "photo") MultipartFile photo) throws Exception {
         faceAuthenticationService.saveNewPhoto(photo);
         return new ResponseEntity<>(HttpStatus.CREATED);
