@@ -1,5 +1,6 @@
-package br.com.souza.facialrecognition.controller;
+package br.com.souza.facialrecognition.controller.impl;
 
+import br.com.souza.facialrecognition.controller.IFaceAuthenticationController;
 import br.com.souza.facialrecognition.dto.FaceAuthenticationResponse;
 import br.com.souza.facialrecognition.service.FaceAuthenticationService;
 import org.springframework.http.HttpStatus;
@@ -13,11 +14,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping(value = "/v1/auth")
-public class FaceAuthenticationController {
+public class FaceAuthenticationControllerImpl implements IFaceAuthenticationController {
 
     private final FaceAuthenticationService faceAuthenticationService;
 
-    public FaceAuthenticationController(FaceAuthenticationService faceAuthenticationService) {
+    public FaceAuthenticationControllerImpl(FaceAuthenticationService faceAuthenticationService) {
         this.faceAuthenticationService = faceAuthenticationService;
     }
 
